@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 import matplotlib.cm as cm
 
 
-DRAW_LINES = False
+DRAW_LINES = True
 
 drawing = False
 ix, iy = -1,-1
