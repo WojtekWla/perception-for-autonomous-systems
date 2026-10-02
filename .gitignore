@@ -6,8 +6,16 @@ __pycache__/
 # C extensions
 *.so
 
+# Images
+*.png
+*.jpeg
+*.jpg
+*.pcd
+*.ply
+
 # Distribution / packaging
 .Python
+*:Zone.Identifier
 build/
 develop-eggs/
 dist/
