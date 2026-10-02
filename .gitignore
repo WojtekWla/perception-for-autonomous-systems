@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Weekly project data (download from DTU Learn, too big for git)
+week_5/weekly_project_5/global_registration/
+week_5/weekly_project_5/car_challange/
