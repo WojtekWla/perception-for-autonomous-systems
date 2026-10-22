@@ -3,7 +3,7 @@ import cv2
 import imutils
 
 balls = []
-MATCH_THRESHOLD = 50
+MATCH_THRESHOLD = 100
 MAX_MISSES = 15
 
 class Ball:
@@ -95,14 +95,14 @@ while True:
     image = cv2.merge([r,g,b])
     image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     
-    lower_red = np.array([0, 100, 100])
+    lower_red = np.array([0, 100, 120])
     upper_red = np.array([10, 255, 255])
 
-    lower_red2 = np.array([170, 100, 100])
+    lower_red2 = np.array([170, 100, 120])
     upper_red2 = np.array([179, 255, 255])
 
-    lower_blue = np.array([100, 100, 100])
-    upper_blue = np.array([130, 255, 255])
+    lower_blue = np.array([70, 15, 40])
+    upper_blue = np.array([100, 255, 255])
 
     lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([30, 255, 255])
@@ -110,6 +110,9 @@ while True:
     mask = cv2.bitwise_or(cv2.inRange(image, lower_red, upper_red), cv2.inRange(image, lower_red2, upper_red2))
     mask = cv2.bitwise_or(mask, cv2.inRange(image, lower_blue, upper_blue))
     mask = cv2.bitwise_or(mask, cv2.inRange(image, lower_yellow, upper_yellow))
+    mask[:, -25:] = 0
+    mask = cv2.erode(mask, None, iterations=10)
+    mask = cv2.dilate(mask, None, iterations=10)
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
 
@@ -117,7 +120,7 @@ while True:
     ball = None
     if cnts:
         for cnt in cnts:
-            if cv2.contourArea(cnt) > 100:
+            if cv2.contourArea(cnt) > 200:
                 detected = True
                 (cx, cy), new_radius = cv2.minEnclosingCircle(cnt)
                 center = (int(cx), int(cy))
