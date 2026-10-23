@@ -8,9 +8,6 @@ MAX_MISSES = 15
 
 class Ball:
     def __init__(self, cx, cy, radius):
-        #position_x, velocity_x, acceleration_x, position_y, velocity_y, acceleration_y
-        self.cx = cx
-        self.cy = cy
         self.radius = radius
         self.matched = False
         self.misses = 0
@@ -42,8 +39,8 @@ H = np.array([
 
 
 R = np.array([
-    [10, 0],
-    [0, 10]
+    [25, 0],
+    [0, 25]
 ])
 
 
@@ -84,8 +81,6 @@ if not cap.isOpened():
     print("Cannot open video")
     exit()
 
-detected = False
-
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -107,8 +102,10 @@ while True:
     lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([30, 255, 255])
 
-    mask = cv2.bitwise_or(cv2.inRange(image, lower_red, upper_red), cv2.inRange(image, lower_red2, upper_red2))
-    mask = cv2.bitwise_or(mask, cv2.inRange(image, lower_blue, upper_blue))
+    mask_red = cv2.bitwise_or(cv2.inRange(image, lower_red, upper_red), cv2.inRange(image, lower_red2, upper_red2))
+    mask_red[:, 1800:] = 0  # excludes the hand entering near the right edge
+
+    mask = cv2.bitwise_or(mask_red, cv2.inRange(image, lower_blue, upper_blue))
     mask = cv2.bitwise_or(mask, cv2.inRange(image, lower_yellow, upper_yellow))
     mask[:, -25:] = 0
     mask = cv2.erode(mask, None, iterations=10)
@@ -121,7 +118,6 @@ while True:
     if cnts:
         for cnt in cnts:
             if cv2.contourArea(cnt) > 200:
-                detected = True
                 (cx, cy), new_radius = cv2.minEnclosingCircle(cnt)
                 center = (int(cx), int(cy))
                 radius = int(new_radius)
@@ -132,6 +128,8 @@ while True:
                     ball.matched = True
                     balls.append(ball)
                 else:
+                    if new_radius > ball.radius:
+                        ball.radius = int(new_radius)
                     Z = np.array([[center[0]], [center[1]]])
                     [ball.x, ball.P] = update(ball.x, ball.P, Z, H, R)
                     cv2.circle(output, (int(ball.x[0,0]), int(ball.x[3,0])), ball.radius, (0,255,0), 3)
@@ -155,7 +153,6 @@ while True:
     cv2.imshow('Frame', output)
     if cv2.waitKey(50) & 0xFF == ord('q'):
         break
-    detected = False
-
+    
 cap.release()
 cv2.destroyAllWindows()
